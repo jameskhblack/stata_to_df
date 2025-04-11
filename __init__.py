@@ -3,8 +3,8 @@
 # python:
 # import os
 # import sys
-# os.environ["PYSTATA_PATH"] = r"C:\Program Files\Stata18\utilities"
-# os.environ["PYSTATA_PATH"] = 'mp'
+# os.environ["PYSTATA_PATH"] = r"C:\Program Files\Stata18\utilities" # Path to Stata18 utilities folder
+# os.environ["STATA_EDITION"] = 'mp'
 # sys.path.append(r"C:\folder") # Folder where this script is located
 # end
 # ```
@@ -32,10 +32,10 @@ PYSTATA_PATH = os.environ.get("PYSTATA_PATH", None) # Read from environment vari
 STATA_EDITION = os.environ.get("STATA_EDITION", None) # Read from environment variable
 
 # --- Public API Function ---
-def export(config_dict: Dict[str, Any]) -> pd.DataFrame:
+def export(config_dict: Dict[str, Any], valuelabel=True) -> pd.DataFrame:
     try:
         config = config_module.validate_config(config_dict)
-        df = load_data(config)
+        df = load_data(config,valuelabel=valuelabel)
         return df
     except StataToDfBaseError as e:
         logger.error(f"Error in configuration or data loading: {e}")
@@ -54,7 +54,7 @@ def setup_stata():
         The initialized pystata.stata module object.
 
     Raises:
-        DataLoaderError: If PYSTATA_PATH is not set or pystata cannot be imported/initialized.
+        DataLoaderError: If PYSTATA_PATH is not set, STATA_EDITION is not set or pystata cannot be imported/initialized.
     """
     logger.debug("Attempting to set up Stata environment...")
     if not PYSTATA_PATH:
@@ -82,7 +82,8 @@ def setup_stata():
     try:
         # Import pystata config and initialize Stata interface
         from pystata import config as pystata_config # Ignore linting errors - package will be found using PYSTATA_PATH
-        pystata_config.init(STATA_EDITION) # Initialize Stata with the specified edition
+        pystata_config.init(STATA_EDITION,splash=False) # Initialize Stata with the specified edition
+        print("Stata initialized successfully.")
         from pystata import stata as pystata_stata # Ignore linting errors - package will be found using PYSTATA_PATH
         logger.info("pystata initialized successfully.")
 
@@ -98,7 +99,7 @@ def setup_stata():
         raise DataLoaderError(msg) from e
     
 # --- Data Loading Function ---
-def load_data(config: ConfigModel) -> pd.DataFrame:
+def load_data(config: ConfigModel, valuelabel=True) -> pd.DataFrame:
     """
     Loads data either from the current Stata session.
 
@@ -127,8 +128,9 @@ def load_data(config: ConfigModel) -> pd.DataFrame:
 
         # Fetch data from Stata using pystata
         # Use valuelabel=True to get labels, missingval=np.nan for consistency
-        df = stata.pdataframe_from_data(var=st_import_vars, valuelabel=True, missingval=np.nan)
+        df = stata.pdataframe_from_data(var=st_import_vars, valuelabel=valuelabel, missingval=np.nan)
         logger.info(f"Successfully loaded DataFrame from Stata with shape {df.shape}.")
+        print(f"Loaded DataFrame from Stata with shape {df.shape}.")
         logger.debug(f"Columns loaded from Stata: {list(df.columns)}")
 
         # Basic check if DataFrame is empty
