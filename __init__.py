@@ -32,7 +32,7 @@ PYSTATA_PATH = os.environ.get("PYSTATA_PATH", None) # Read from environment vari
 STATA_EDITION = os.environ.get("STATA_EDITION", None) # Read from environment variable
 
 # --- Public API Function ---
-def export(config_dict: Dict[str, Any], valuelabel=True) -> pd.DataFrame:
+def stata_to_df(config_dict: Dict[str, Any], valuelabel=True) -> pd.DataFrame:
     try:
         config = config_module.validate_config(config_dict)
         df = load_data(config,valuelabel=valuelabel)
