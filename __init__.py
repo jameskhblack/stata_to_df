@@ -1,22 +1,9 @@
-# PYSTATA_PATH must be set in the Stata environment. Example Stata code to run this script is:
-# ```stata
-# python:
-# import os
-# import sys
-# os.environ["PYSTATA_PATH"] = r"C:\Program Files\Stata18\utilities" # Path to Stata18 utilities folder
-# os.environ["STATA_EDITION"] = 'mp'
-# sys.path.append(r"C:\folder") # Folder where this script is located
-# end
-# ```
-
-#%%
 import os
 import pandas as pd
 import numpy as np
 import sys
 import logging
 from typing import Dict, Any
-
 
 # Assuming ConfigModel and exceptions are importable from sibling modules
 from .config import ConfigModel
@@ -86,7 +73,6 @@ def setup_stata():
         print("Stata initialized successfully.")
         from pystata import stata as pystata_stata # Ignore linting errors - package will be found using PYSTATA_PATH
         logger.info("pystata initialized successfully.")
-
 
         return pystata_stata
     except ImportError as e:

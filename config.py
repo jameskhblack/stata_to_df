@@ -5,8 +5,6 @@ from pydantic import BaseModel, Field, ValidationError, model_validator
 
 from .exceptions import ConfigValidationError
 
-
-
 # Define the main configuration model
 class ConfigModel(BaseModel):
     """Pydantic model for the main application configuration."""
@@ -42,7 +40,6 @@ class ConfigModel(BaseModel):
             raise ValueError(f"Duplicate variable names found within col_var: {self.col_var}")
 
         return self
-
 
 
 # --- Validation Function ---
